@@ -6,7 +6,7 @@ L.Draw.Circle = L.Draw.SimpleShape.extend({
 	options: {
 		shapeOptions: {
 			stroke: true,
-			color: '#f06eaa',
+			color: '#ff6300',
 			weight: 4,
 			opacity: 0.5,
 			fill: true,
@@ -15,7 +15,7 @@ L.Draw.Circle = L.Draw.SimpleShape.extend({
 			clickable: true
 		},
 		showRadius: true,
-		metric: true, // Whether to use the metric measurement system or imperial
+		metric: false, // Whether to use the metric measurement system or imperial
 		feet: true // When not metric, use feet instead of yards for display
 	},
 
@@ -28,17 +28,28 @@ L.Draw.Circle = L.Draw.SimpleShape.extend({
 		L.Draw.SimpleShape.prototype.initialize.call(this, map, options);
 	},
 
+    _findCenter: function (latlng1, latlng2) {
+        return new L.LatLng(
+            (latlng1.lat + latlng2.lat) / 2,
+            (latlng1.lng + latlng2.lng) / 2
+        );
+    },
+
 	_drawShape: function (latlng) {
 		if (!this._shape) {
 			this._shape = new L.Circle(this._startLatLng, this._startLatLng.distanceTo(latlng), this.options.shapeOptions);
 			this._map.addLayer(this._shape);
 		} else {
-			this._shape.setRadius(this._startLatLng.distanceTo(latlng));
+			//this._shape.setRadius(this._startLatLng.distanceTo(latlng));
+            this._lastCenter = this._findCenter(this._startLatLng, latlng);
+			this._shape.setLatLng(this._lastCenter);
+			this._shape.setRadius(this._lastCenter.distanceTo(latlng));
 		}
 	},
 
 	_fireCreatedEvent: function () {
-		var circle = new L.Circle(this._startLatLng, this._shape.getRadius(), this.options.shapeOptions);
+		//var circle = new L.Circle(this._startLatLng, this._shape.getRadius(), this.options.shapeOptions);
+		var circle = new L.Circle(this._lastCenter, this._shape.getRadius(), this.options.shapeOptions);
 		L.Draw.SimpleShape.prototype._fireCreatedEvent.call(this, circle);
 	},
 
@@ -49,6 +60,7 @@ L.Draw.Circle = L.Draw.SimpleShape.extend({
 			radius;
 
 		this._tooltip.updatePosition(latlng);
+
 		if (this._isDrawing) {
 			this._drawShape(latlng);
 

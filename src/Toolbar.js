@@ -121,6 +121,8 @@ L.Toolbar = L.Class.extend({
 		var link = L.DomUtil.create('a', options.className || '', options.container);
 		link.href = '#';
 
+        L.DomUtil.create('span', 'icon-circle-select', link);
+
 		if (options.text) {
 			link.innerHTML = options.text;
 		}
